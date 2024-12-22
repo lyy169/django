@@ -1,0 +1,23 @@
+<!-- create_topic.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建新主题</title>
+</head>
+<body>
+    <h1>创建新主题</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">提交</button>
+    </form>
+
+    <!-- 返回首页按钮 -->
+    <a href="{% url 'home' %}">
+        <button>返回首页</button>
+    </a>
+</body>
+</html>

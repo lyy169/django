@@ -1,0 +1,46 @@
+<!-- home.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页</title>
+</head>
+<body>
+    <h1>欢迎，{{ user.username }}!</h1>
+
+  <!-- 显示所有主题和条目 -->
+<h2>所有主题</h2>
+<ul>
+    {% for topic in topics %}
+        <li>
+            <a href="{% url 'topic_detail_byid' topic.id %}">{{ topic.title }}</a>
+
+            <!-- 显示该主题下的条目 -->
+            <ul>
+                {% for entry in topic.entries %}
+                    <li>{{ entry.title }}</li>  <!-- 这里显示条目的标题 -->
+                {% empty %}
+                    <li>该主题下没有条目。</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% empty %}
+        <li>没有主题可显示。</li>
+    {% endfor %}
+</ul>
+
+
+
+    <!-- 创建主题按钮 -->
+    <a href="{% url 'topic_list' %}">
+        <button>创建新主题</button>
+    </a>
+
+    <!-- 登出按钮 -->
+    <a href="{% url 'logout' %}">
+        <button>登出</button>
+    </a>
+</body>
+</html>

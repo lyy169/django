@@ -1,7 +1,13 @@
+# serializers.py
 from rest_framework import serializers
-from goods.models import Goods
+from notes.models import Topic, Entry
 
-class GoodsSerializer(serializers.ModelSerializer):
+class TopicSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Goods
-        fields = '__all__'
+        model = Topic
+        fields = ['id', 'title', 'owner', 'created_at']
+
+class EntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entry
+        fields = ['id', 'topic', 'text', 'created_at']
