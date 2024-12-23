@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建条目</title>
+</head>
+<body>
+    <h1>创建新条目</h1>
+    <h2>主题: {{ topic.title }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">创建</button>
+    </form>
+
+    <!-- 返回首页按钮 -->
+    <a href="{% url 'home' %}">
+        <button>返回首页</button>
+    </a>
+</body>
+</html>

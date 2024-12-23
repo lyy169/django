@@ -1,7 +1,7 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from pyexpat.errors import messages
 from rest_framework import status
 from rest_framework.response import Response
@@ -9,14 +9,45 @@ from rest_framework.decorators import api_view
 from api.serializers import TopicSerializer, EntrySerializer
 from notes.models import Topic, Entry
 from django.contrib import messages
-
+from .forms import TopicForm, EntryForm  # 你需要创建一个TopicForm来处理主题的表单
+from notes.models import Topic, Entry
 @login_required
 def home(request):
     topics = Topic.objects.all()  # 获取所有主题
     for topic in topics:
         topic.entries = Entry.objects.filter(topic=topic)  # 获取每个主题下的条目
     return render(request, 'home.html', {'topics': topics})
+# 创建主题视图
+@login_required
+def create_topic(request):
+    if request.method == 'POST':
+        form = TopicForm(request.POST)
+        if form.is_valid():
+            new_topic = form.save(commit=False)
+            new_topic.owner = request.user  # 设置当前用户为主题的拥有者
+            new_topic.save()
+            return redirect('home')  # 创建成功后返回首页
+    else:
+        form = TopicForm()
 
+    return render(request, 'registration/create_topic.html', {'form': form})
+
+# 创建条目视图
+@login_required
+def create_entry(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id, owner=request.user)
+
+    if request.method == 'POST':
+        form = EntryForm(request.POST)
+        if form.is_valid():
+            new_entry = form.save(commit=False)
+            new_entry.topic = topic  # 将条目绑定到对应主题
+            new_entry.save()
+            return redirect('home')  # 创建成功后返回首页
+    else:
+        form = EntryForm()
+
+    return render(request, 'registration/create_entry.html', {'form': form, 'topic': topic})
 # 处理获取所有主题和创建主题
 @api_view(['GET', 'POST'])
 @login_required

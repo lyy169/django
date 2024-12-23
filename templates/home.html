@@ -1,5 +1,3 @@
-<!-- home.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,31 +8,36 @@
 <body>
     <h1>欢迎，{{ user.username }}!</h1>
 
-  <!-- 显示所有主题和条目 -->
-<h2>所有主题</h2>
-<ul>
-    {% for topic in topics %}
-        <li>
-            <a href="{% url 'topic_detail_byid' topic.id %}">{{ topic.title }}</a>
+    <!-- 显示所有主题和条目 -->
+    <h2>所有主题</h2>
+    <ul>
+        {% for topic in topics %}
+            <li>
+                <a href="{% url 'topic_detail_byid' topic.id %}">{{ topic.title }}</a>
 
-            <!-- 显示该主题下的条目 -->
-            <ul>
-                {% for entry in topic.entries %}
-                    <li>{{ entry.title }}</li>  <!-- 这里显示条目的标题 -->
-                {% empty %}
-                    <li>该主题下没有条目。</li>
-                {% endfor %}
-            </ul>
-        </li>
-    {% empty %}
-        <li>没有主题可显示。</li>
-    {% endfor %}
-</ul>
+                <!-- 显示该主题下的条目 -->
+                <ul>
+                    {% for entry in topic.entries %}
+                        <li>
+                            <a href="{% url 'entry_detail_byid' topic.id entry.id %}">{{ entry.text }}</a>
+                        </li>
+                    {% empty %}
+                        <li>该主题下没有条目。</li>
+                    {% endfor %}
+                </ul>
 
+                <!-- 添加条目按钮 -->
+                <a href="{% url 'create_entry' topic.id %}">
+                    <button>添加条目</button>
+                </a>
+            </li>
+        {% empty %}
+            <li>没有主题可显示。</li>
+        {% endfor %}
+    </ul>
 
-
-    <!-- 创建主题按钮 -->
-    <a href="{% url 'topic_list' %}">
+    <!-- 创建新主题按钮 -->
+    <a href="{% url 'create_topic' %}">
         <button>创建新主题</button>
     </a>
 

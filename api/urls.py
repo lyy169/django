@@ -4,6 +4,8 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path('create_topic/', views.create_topic, name='create_topic'),  # 创建主题
+    path('create_entry/<int:topic_id>/', views.create_entry, name='create_entry'),  # 创建条目
     path('home/', views.home, name='home'),
     path('topics/', views.topic_list, name='topic_list'),
     path('topics/<int:id>/', views.topic_detail_byid, name='topic_detail_byid'),
