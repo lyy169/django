@@ -6,14 +6,48 @@
     <title>主页</title>
 </head>
 <body>
-    <h1>欢迎，{{ user.username }}!</h1>
+    <h1>欢迎，{% if user.is_authenticated %}{{ user.username }}{% else %}访客{% endif %}!</h1>
 
-    <!-- 显示所有主题和条目 -->
-    <h2>所有主题</h2>
+    <!-- 显示我的主题（仅登录用户） -->
+    {% if user.is_authenticated %}
+        <h2>我的主题</h2>
+        <ul>
+            {% for topic in topics %}
+                <li>
+                    <a href="{% url 'topic_detail_byid' topic.id %}">{{ topic.title }}</a>
+                    {% if topic.public %}
+                        <span>(公开)</span>
+                    {% endif %}
+
+                    <!-- 显示该主题下的条目 -->
+                    <ul>
+                        {% for entry in topic.entries %}
+                            <li>
+                                <a href="{% url 'entry_detail_byid' topic.id entry.id %}">{{ entry.text }}</a>
+                            </li>
+                        {% empty %}
+                            <li>该主题下没有条目。</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- 添加条目按钮（仅对主题所有者显示） -->
+                    <a href="{% url 'create_entry' topic.id %}">
+                        <button>添加条目</button>
+                    </a>
+                </li>
+            {% empty %}
+                <li>您没有创建任何主题。</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!-- 显示公开主题 -->
+    <h2>公开主题</h2>
     <ul>
-        {% for topic in topics %}
+        {% for topic in public_topics %}
             <li>
                 <a href="{% url 'topic_detail_byid' topic.id %}">{{ topic.title }}</a>
+                <span>(公开)</span>
 
                 <!-- 显示该主题下的条目 -->
                 <ul>
@@ -26,24 +60,34 @@
                     {% endfor %}
                 </ul>
 
-                <!-- 添加条目按钮 -->
-                <a href="{% url 'create_entry' topic.id %}">
-                    <button>添加条目</button>
-                </a>
+                <!-- 添加条目按钮（仅登录用户） -->
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_entry' topic.id %}">
+                        <button>添加条目</button>
+                    </a>
+                {% endif %}
             </li>
         {% empty %}
-            <li>没有主题可显示。</li>
+            <li>没有公开主题可显示。</li>
         {% endfor %}
     </ul>
 
-    <!-- 创建新主题按钮 -->
-    <a href="{% url 'create_topic' %}">
-        <button>创建新主题</button>
-    </a>
+    <!-- 创建新主题按钮（仅登录用户） -->
+    {% if user.is_authenticated %}
+        <a href="{% url 'create_topic' %}">
+            <button>创建新主题</button>
+        </a>
+    {% endif %}
 
-    <!-- 登出按钮 -->
-    <a href="{% url 'logout' %}">
-        <button>登出</button>
-    </a>
+    <!-- 登出或登录按钮 -->
+    {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">
+            <button>登出</button>
+        </a>
+    {% else %}
+        <a href="{% url 'login' %}">
+            <button>登录</button>
+        </a>
+    {% endif %}
 </body>
 </html>

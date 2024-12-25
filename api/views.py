@@ -11,12 +11,34 @@ from notes.models import Topic, Entry
 from django.contrib import messages
 from .forms import TopicForm, EntryForm  # 你需要创建一个TopicForm来处理主题的表单
 from notes.models import Topic, Entry
-@login_required
+
+# 首页视图
+# def home(request):
+#     if request.user.is_authenticated:
+#         # 已登录用户只能看到自己的主题
+#         topics = Topic.objects.filter(owner=request.user)
+#     else:
+#         # 未登录用户可以看到所有公开的主题
+#         topics = Topic.objects.filter(public=True)
+#
+#     return render(request, 'home.html', {'topics': topics})
 def home(request):
-    topics = Topic.objects.all()  # 获取所有主题
+    if request.user.is_authenticated:
+        # 登录用户可以查看自己的主题
+        topics = Topic.objects.filter(owner=request.user)
+    else:
+        topics = []
+
+    # 所有人都可以查看公开主题
+    public_topics = Topic.objects.filter(public=True)
+
     for topic in topics:
-        topic.entries = Entry.objects.filter(topic=topic)  # 获取每个主题下的条目
-    return render(request, 'home.html', {'topics': topics})
+        topic.entries = Entry.objects.filter(topic=topic)
+    for topic in public_topics:
+        topic.entries = Entry.objects.filter(topic=topic)
+
+    return render(request, 'home.html', {'topics': topics, 'public_topics': public_topics})
+
 # 创建主题视图
 @login_required
 def create_topic(request):
@@ -53,14 +75,14 @@ def create_entry(request, topic_id):
 @login_required
 def topic_list(request):
     if request.method == 'GET':
-        topics = Topic.objects.all()  # 获取所有主题
+        topics = Topic.objects.filter(owner=request.user)  # 仅获取当前用户的主题
         serializer = TopicSerializer(topics, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = TopicSerializer(data=request.data)  # 序列化传入的数据
+        serializer = TopicSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()  # 保存数据
+            serializer.save(owner=request.user)  # 保存时绑定到当前用户
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -69,7 +91,7 @@ def topic_list(request):
 @login_required
 def topic_detail_byid(request, id):
     try:
-        topic = Topic.objects.get(id=id)  # 获取具体主题
+        topic = get_object_or_404(Topic, id=id, owner=request.user)  # 确保主题属于当前用户
     except Topic.DoesNotExist:
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 

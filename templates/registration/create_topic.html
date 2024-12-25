@@ -9,11 +9,12 @@
 <body>
     <h1>创建新主题</h1>
 
-    <form method="POST">
+        <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">提交</button>
+        <button type="submit">创建主题</button>
     </form>
+
 
     <!-- 返回首页按钮 -->
     <a href="{% url 'home' %}">

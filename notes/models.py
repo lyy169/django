@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Topic(models.Model):
-    """用户学习的主题"""
     title = models.CharField(max_length=200)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    public = models.BooleanField(default=False)  # 新增字段，默认私有
 
     def __str__(self):
         return self.title
